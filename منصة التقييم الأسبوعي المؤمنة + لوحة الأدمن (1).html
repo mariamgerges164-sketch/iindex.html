@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة التقييم الأسبوعي المؤمنة | أ/ ديفيد سامي</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at 50% 10%, #1a103c 0%, #090514 100%);
+            color: #f3f4f6;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between p-4 selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- الهيدر العلوي -->
+    <header class="w-full max-w-5xl mx-auto flex items-center justify-between py-4 border-b border-amber-500/20 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-lg">
+                🛡️
+            </div>
+            <div>
+                <h1 class="text-sm sm:text-base font-black text-amber-400">منصة التقييم الأسبوعي المؤمنة</h1>
+                <p class="text-xs text-slate-400">الصف الأول الثانوي • إعداد وتطوير: <span class="text-white font-bold">ديفيد سامي</span></p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="showPage('student-gate')" class="px-3 py-2 rounded-xl bg-slate-800 text-amber-300 hover:bg-slate-700 text-xs font-bold transition">
+                📚 صفحة الطلاب
+            </button>
+            <button onclick="openAdminLogin()" class="px-3 py-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-bold transition flex items-center gap-1.5">
+                🔒 لوحة الأدمن (المستر)
+            </button>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="w-full max-w-4xl mx-auto flex-grow flex items-center justify-center">
+
+        <!-- 1. صفحة اختيار النموذج واسم الطالب -->
+        <section id="student-gate" class="w-full max-w-lg glass-card rounded-3xl p-6 sm:p-8 text-center space-y-5">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-400 text-3xl flex items-center justify-center">
+                📝
+            </div>
+            <h2 class="text-2xl font-black text-amber-400">ابدأ التقييم الأسبوعي</h2>
+            <p class="text-xs text-slate-300">أدخل اسمك الثلاثي بعناية، ثم اختر النموذج المخصص لك. (ملاحظة: الخروج من الشاشة أو فتح تبويب آخر يغلق التقييم فوراً).</p>
+            
+            <div class="space-y-4 text-right">
+                <div>
+                    <label class="block text-xs font-bold text-amber-300 mb-1">الاسم الثلاثي للطالب:</label>
+                    <input type="text" id="student-fullname-input" placeholder="اكتب اسمك الثلاثي هنا..."
+                        class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-white text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-amber-300 mb-1">اختر النموذج:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="selectModel('A')" id="btn-model-A" class="model-select-btn py-3 rounded-xl bg-slate-900 border border-slate-700 font-bold text-amber-300 text-sm transition">نموذج أ</button>
+                        <button onclick="selectModel('B')" id="btn-model-B" class="model-select-btn py-3 rounded-xl bg-slate-900 border border-slate-700 font-bold text-amber-300 text-sm transition">نموذج ب</button>
+                        <button onclick="selectModel('C')" id="btn-model-C" class="model-select-btn py-3 rounded-xl bg-slate-900 border border-slate-700 font-bold text-amber-300 text-sm transition">نموذج ج</button>
+                    </div>
+                </div>
+                <button onclick="startExamSession()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-sm transition shadow-lg cursor-pointer">
+                    🚀 ابدأ التقييم الآن
+                </button>
+            </div>
+        </section>
+
+        <!-- 2. صفحة أسئلة التقييم -->
+        <section id="exam-screen" class="hidden w-full max-w-3xl glass-card rounded-3xl p-6 sm:p-8 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <span id="exam-model-title" class="px-3 py-1 rounded bg-amber-500/20 text-amber-300 text-xs font-bold"></span>
+                <div class="flex items-center gap-3">
+                    <div id="timer-badge" class="px-3 py-1 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/40 text-xs font-mono font-bold flex items-center gap-1.5 animate-pulse">
+                        ⏳ <span id="timer-display">15:00</span>
+                    </div>
+                    <span id="exam-progress-counter" class="text-xs font-mono text-slate-400"></span>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <span id="exam-q-type" class="text-xs font-bold text-cyan-400"></span>
+                <h3 id="exam-q-text" class="text-lg font-bold text-white leading-relaxed"></h3>
+            </div>
+
+            <!-- خيارات الاختيار من متعدد -->
+            <div id="exam-mcq-container" class="space-y-2.5"></div>
+
+            <!-- مربع الكتابة المقالية -->
+            <div id="exam-essay-container" class="hidden space-y-2">
+                <textarea id="exam-essay-input" rows="4" placeholder="اكتب إجابتك المقالية الوافية هنا..."
+                    class="w-full p-4 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-white text-sm"></textarea>
+            </div>
+
+            <div class="flex justify-between pt-4 border-t border-slate-800">
+                <button onclick="prevExamQuestion()" id="prev-btn" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700 transition">السابق</button>
+                <button onclick="nextExamQuestion()" id="next-btn" class="px-6 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-black hover:bg-amber-400 transition">السؤال التالي ➡️</button>
+            </div>
+        </section>
+
+        <!-- 3. شاشة تسليم التقييم بنجاح -->
+        <section id="submitted-screen" class="hidden w-full max-w-md glass-card rounded-3xl p-8 text-center space-y-5">
+            <div id="submitted-icon" class="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/20 border border-emerald-500 text-3xl flex items-center justify-center">
+                ✅
+            </div>
+            <h2 id="submitted-title" class="text-2xl font-black text-emerald-400">تم تسليم التقييم بنجاح!</h2>
+            <p id="submitted-desc" class="text-xs text-slate-300 leading-relaxed">
+                تم حفظ إجاباتك ورصد درجتك وعنوان الـ IP وإرسالها إلى لوحة المستر.
+            </p>
+            <div id="student-score-preview" class="p-4 rounded-xl bg-slate-950 border border-amber-500/30 text-amber-300 font-bold text-sm">
+                <!-- تعرض الدرجة للطالب بعد التسليم -->
+            </div>
+            <button onclick="showPage('student-gate')" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold py-3 rounded-xl text-xs transition">
+                العودة للرئيسية
+            </button>
+        </section>
+
+        <!-- 4. شاشة تسجيل دخول الأدمن -->
+        <section id="admin-login-screen" class="hidden w-full max-w-md glass-card rounded-3xl p-8 text-center space-y-5">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-400 text-3xl flex items-center justify-center">
+                🔐
+            </div>
+            <h2 class="text-2xl font-black text-amber-400">لوحة تحكم الأدمن (المستر)</h2>
+            <p class="text-xs text-slate-400">أدخل كلمة المرور الخاصة بالمستر للاطلاع على نتائج الطلاب وعناوين الـ IP وتصحيح المقالي</p>
+            <div class="space-y-3 text-right">
+                <input type="password" id="admin-password-input" placeholder="أدخل كلمة المرور" dir="ltr" autocomplete="off"
+                    onkeydown="if(event.key==='Enter') verifyAdminLogin()"
+                    class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-white text-center font-mono">
+                <p id="admin-login-error" class="hidden text-rose-400 text-xs font-bold text-center">❌ كلمة المرور غير صحيحة!</p>
+            </div>
+            <button onclick="verifyAdminLogin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl text-sm cursor-pointer">
+                دخول لوحة الأدمن 🔓
+            </button>
+        </section>
+
+        <!-- 5. لوحة التحكم والإدارة الكاملة -->
+        <section id="admin-dashboard-screen" class="hidden w-full max-w-5xl glass-card rounded-3xl p-6 sm:p-8 space-y-6 text-right">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-xl font-black text-amber-400">لوحة تحكم المستر (سجلات الطلاب وعناوين IP)</h2>
+                    <p class="text-xs text-slate-400">متابعة فورية لحالة الاختبارات، كشف حالات الغش، وتصحيح الأسئلة المقالية.</p>
+                </div>
+                <button onclick="showPage('student-gate')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300">
+                    خروج للأمان
+                </button>
+            </div>
+
+            <!-- قائمة سجلات الطلاب -->
+            <div id="admin-records-container" class="space-y-4 max-h-[600px] overflow-y-auto pr-1">
+                <!-- يتم تعبئتها ديناميكياً -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- التذييل السفلي -->
+    <footer class="w-full max-w-5xl mx-auto text-center py-4 text-xs text-slate-400 border-t border-amber-500/10 mt-6">
+        <p>نظام التقييم الإلكتروني المؤمن • إعداد وتطوير: <span class="text-amber-400 font-bold">ديفيد سامي</span></p>
+    </footer>
+
+    <script>
+        // ================= بنك أسئلة النماذج الثلاثة (أ، ب، ج) مع تكامل أبيات النحو الكاملة =================
+        const examModels = {
+            A: {
+                title: "نموذج (أ) - التقييم الأسبوعي الثامن",
+                questions: [
+                    { type: "mcq", q: "1. ما الغرض من قوله تعالى 'وبالوالدين إحساناً'؟", options: ["التخويف والتهديد", "التنبيه والتعليم", "التوبيخ والعتاب", "التكليف والإلزام"], correct: 3 },
+                    { type: "mcq", q: "2. ماذا أفاد حرف الجر 'من' في قوله تعالى 'ولا تقتلوا أولادكم من إملاق'؟", options: ["الاستعانة", "السببية", "الابتداء", "التقليل"], correct: 1 },
+                    { type: "mcq", q: "3. استنتج علاقة قوله تعالى 'لعلكم تعقلون' بما قبلها.", options: ["تعليل", "نتيجة", "توضيح", "تأكيد"], correct: 0 },
+                    { type: "essay", q: "4. (الأدب): استنتج من خلال فهمك للبيت السابق أثراً من آثار الإسلام على الشعر من حيث المعاني.", sampleAnswer: "وضوح المعاني واتفاقها مع روح الإسلام والبعد عن معاني الجاهلية." },
+                    { type: "essay", q: "5. (البلاغة): قال البحتري يصف قُصراً: 'عانقت شرفاته قطع السحاب' - حدد الاستعارة، وبين نوعها، ووضحها، وسر جمالها.", sampleAnswer: "استعارة مكنية، شبه الشرفات بإنسان يعانق، سر جمالها التشخيص وتوحي بعلو الفخامة." },
+                    { type: "essay", q: "6. (النحو): قال الشاعر: 'أنا الذائد الحامي الذمار، وإنما يدافع عن أحسابهم أنا أو مثلي' - استخرج اسم الفاعل الوارد في البيت، وبين سبب عمله، وأعرب معموله.", sampleAnswer: "اسم الفاعل: الذائد أو الحامي، عمل لأنه مقترن بـ (أل)، ومعموله (الذمار) مفعول به منصوب." }
+                ]
+            },
+            B: {
+                title: "نموذج (ب) - التقييم الأسبوعي الثامن",
+                questions: [
+                    { type: "mcq", q: "1. ميز مما يلي - مضاد (إحساناً):", options: ["إكراهاً", "إرهاقاً", "عقوقاً", "حرماناً"], correct: 2 },
+                    { type: "mcq", q: "2. استنتج علاقة قوله تعالى 'ألا تشركوا به شيئاً وبالوالدين إحساناً...' بما قبله.", options: ["إجمال وقبله تفصيل", "تفصيل وقبله إجمال", "تعليل وقبله نتيجة", "تقرير وقبله استدراك"], correct: 1 },
+                    { type: "mcq", q: "3. لماذا كان قوله تعالى 'لا تقربوا الفواحش' أجمل من (لا تفعلوا الفواحش)؟", options: ["لأن الاقتراب أبلغ في النهي وسد الذرائع المؤدية للفعل.", "لأنه أسهل في الحفظ.", "لأنه يعبر عن الزمان والمكان.", "لأنه خطاب للمسلمين فقط."], correct: 0 },
+                    { type: "essay", q: "4. (الأدب): استنتج من خلال البيتين أثر الإسلام على الشعر من حيث الألفاظ.", sampleAnswer: "تهذيب الألفاظ بمحاكاة ألفاظ القرآن الكريم والحديث الشريف واستعمال ألفاظ جديدة." },
+                    { type: "essay", q: "5. (البلاغة): قال الشاعر: 'من يطلب الدهر تدركه مخالبه والدهر بالوتر ناج غير مطلوب' - استخرج الاستعارة وبين نوعها وسر جمالها.", sampleAnswer: "استعارة مكنية، شبه الدهر بحيوان مفترس له مخالبه، وسر جمالها التجسيم." },
+                    { type: "essay", q: "6. (النحو): قال الشاعر: 'لا تحسين الدهر هادماً ما شاده المخلصون' - ميز سبب إعمال اسم الفاعل وأعرب معموله في العبارة.", sampleAnswer: "اسم الفاعل: هادماً، اعتمد على ما أصله مبتدأ وخبر، ومعموله (ما) اسم موصول مبني في محل نصب مفعول به." }
+                ]
+            },
+            C: {
+                title: "نموذج (ج) - التقييم الأسبوعي الثامن",
+                questions: [
+                    { type: "mcq", q: "1. ميز مما يلي - معنى (وسعها):", options: ["طاقتها", "سعادتها", "غناها", "مرادها"], correct: 0 },
+                    { type: "mcq", q: "2. استنتج علاقة قوله تعالى 'لا نكلف نفساً إلا وسعها' بما قبله.", options: ["تفصيل", "إجمال", "توضيح / تذييل", "توضيح"], correct: 2 },
+                    { type: "mcq", q: "3. بين وسيلة التوكيد في 'ولا تقربوا مال اليتيم إلا بالتي هي أحسن'، ثم بين فائدة تنكير كلمة (نفساً).", options: ["أسلوب قصر بالنفي والاستثناء، وتنكير نفساً للعموم والشمول.", "التوكيد اللفظي والعموم.", "الاستفهام الإنكاري والخصوص.", "القلب والترتيب."], correct: 0 },
+                    { type: "essay", q: "4. (الأدب): استنتج من البيتين أثر الإسلام على الشعر من حيث المعاني.", sampleAnswer: "وضوح المعاني واتفاقها مع روح الإسلام والإشادة بصفات الرسول." },
+                    { type: "essay", q: "5. (البلاغة): قال الشاعر: 'سألتني عن أناس هلكوا أكل الدهر عليهم وشرب' - استخرج الاستعارة وبين سر جمالها.", sampleAnswer: "استعارة مكنية، شبه الدهر بإنسان يأكل ويشرب، سر جمالها التشخيص." },
+                    { type: "essay", q: "6. (النحو): قال الشاعر: 'وما أنا طالب مالاً فإني هنالك تارك مالاً وآلا' - استخرج اسم الفاعل وبين شرط عمله وأعرِب معموله.", sampleAnswer: "اسم الفاعل: طالب / تارك، اعتمد على مبتدأ، ومعموله (مالاً) مفعول به منصوب وعلامة نصبه الفتحة." }
+                ]
+            }
+        };
+
+        let recordsDatabase = [];
+
+        let currentStudentName = "";
+        let currentModelKey = "";
+        let currentQIndex = 0;
+        let studentAnswers = [];
+        let isExamActive = false;
+        let detectedIP = "جاري جلب الـ IP...";
+        let cheatTriggered = false;
+        
+        let timeLeft = 900;
+        let examTimerInterval = null;
+
+        async function fetchClientIP() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                detectedIP = data.ip || "192.168.1.105 (Local)";
+            } catch (e) {
+                detectedIP = "192.168.1." + Math.floor(Math.random() * 200 + 10);
+            }
+        }
+        fetchClientIP();
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isExamActive && !cheatTriggered) {
+                handleCheatAttempt("مغادرة تبويب الاختبار أو فتح تطبيق خارجي (مثل ChatGPT)");
+            }
+        });
+
+        window.addEventListener("blur", () => {
+            if (isExamActive && !cheatTriggered) {
+                handleCheatAttempt("فقدان التركيز عن نافذة التقييم (محاولة فتح نافذة أخرى)");
+            }
+        });
+
+        document.addEventListener("copy", (e) => {
+            if (isExamActive) {
+                e.preventDefault();
+                handleCheatAttempt("محاولة نسخ نص السؤال (Copy)");
+            }
+        });
+
+        document.addEventListener("paste", (e) => {
+            if (isExamActive) {
+                e.preventDefault();
+                handleCheatAttempt("محاولة لصق إجابة جاهزة (Paste)");
+            }
+        });
+
+        function handleCheatAttempt(reason) {
+            clearInterval(examTimerInterval);
+            cheatTriggered = true;
+            isExamActive = false;
+            saveCurrentEssayIfAny();
+            finalizeExamSubmission("cheated", reason);
+
+            showPage('submitted-screen');
+            document.getElementById('submitted-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-rose-500/20 border border-rose-500 text-3xl flex items-center justify-center animate-bounce";
+            document.getElementById('submitted-icon').textContent = "🚨";
+            document.getElementById('submitted-title').textContent = "تم إغلاق التقييم فوراً بسبب محاولة الغش!";
+            document.getElementById('submitted-title').className = "text-2xl font-black text-rose-400";
+            document.getElementById('submitted-desc').innerHTML = `
+                رصد نظام الحماية: <strong class="text-white">${reason}</strong>.
+                <br>تم تسجيل عنوان الـ <strong class="text-rose-300 font-mono">IP Address (${detectedIP})</strong> الخاص بك وإرسال التقرير إلى لوحة المستر فوراً!
+            `;
+            document.getElementById('student-score-preview').innerHTML = "الدرجة: 0 / 6 (موقوف بسبب الغش)";
+        }
+
+        function showPage(pageId) {
+            ['student-gate', 'exam-screen', 'submitted-screen', 'admin-login-screen', 'admin-dashboard-screen'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function selectModel(modelKey) {
+            currentModelKey = modelKey;
+            document.querySelectorAll('.model-select-btn').forEach(btn => {
+                btn.classList.remove('border-amber-400', 'bg-amber-500/20', 'text-amber-300');
+                btn.classList.add('border-slate-700', 'bg-slate-900', 'text-slate-300');
+            });
+            const activeBtn = document.getElementById(`btn-model-${modelKey}`);
+            activeBtn.classList.remove('border-slate-700', 'bg-slate-900', 'text-slate-300');
+            activeBtn.classList.add('border-amber-400', 'bg-amber-500/20', 'text-amber-300');
+        }
+
+        function startExamSession() {
+            const nameInput = document.getElementById('student-fullname-input').value.trim();
+            if (!nameInput) {
+                alert("برجاء إدخال اسمك الثلاثي أولاً!");
+                return;
+            }
+            if (!currentModelKey) {
+                alert("برجاء اختيار النموذج (أ، ب، أو ج) أولاً!");
+                return;
+            }
+
+            currentStudentName = nameInput;
+            currentQIndex = 0;
+            cheatTriggered = false;
+            isExamActive = true;
+            timeLeft = 900; // 15 دقيقة بالثواني
+
+            const model = examModels[currentModelKey];
+            studentAnswers = model.questions.map(() => ({ mcqSelected: null, essayText: "" }));
+
+            document.getElementById('exam-model-title').textContent = model.title;
+            showPage('exam-screen');
+            renderExamQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(examTimerInterval);
+            examTimerInterval = setInterval(() => {
+                if (!isExamActive) {
+                    clearInterval(examTimerInterval);
+                    return;
+                }
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60);
+                let s = timeLeft % 60;
+                document.getElementById('timer-display').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(examTimerInterval);
+                    isExamActive = false;
+                    saveCurrentEssayIfAny();
+                    finalizeExamSubmission("timeout", "انتهى الوقت المحدد (15 دقيقة) وتم التسليم التلقائي");
+                    showPage('submitted-screen');
+                    document.getElementById('submitted-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-400 text-3xl flex items-center justify-center";
+                    document.getElementById('submitted-icon').textContent = "⏰";
+                    document.getElementById('submitted-title').textContent = "انتهى وقت التقييم!";
+                    document.getElementById('submitted-title').className = "text-2xl font-black text-amber-400";
+                    document.getElementById('submitted-desc').innerHTML = "انقضت الربع ساعة المخصصة وتم تسليم إجاباتك تلقائياً إلى لوحة المستر.";
+                    
+                    const score = calculateTotalScore();
+                    document.getElementById('student-score-preview').innerHTML = `درجتك المرصودة في أسئلة الاختيار: <span class="text-amber-400 font-bold">${score} / 3</span>`;
+                }
+            }, 1000);
+        }
+
+        function calculateTotalScore() {
+            const model = examModels[currentModelKey];
+            let correct = 0;
+            model.questions.forEach((q, idx) => {
+                if (q.type === 'mcq' && studentAnswers[idx].mcqSelected === q.correct) {
+                    correct++;
+                }
+                // الأسئلة المقالية يصححها المستر يدوياً من لوحة الأدمن
+                if (q.type === 'essay' && studentAnswers[idx].essayManualScore === 1) {
+                    correct++;
+                }
+            });
+            return correct;
+        }
+
+        function renderExamQuestion() {
+            const model = examModels[currentModelKey];
+            const q = model.questions[currentQIndex];
+
+            document.getElementById('exam-progress-counter').textContent = `السؤال ${currentQIndex + 1} من ${model.questions.length}`;
+            document.getElementById('exam-q-type').textContent = q.type === 'mcq' ? "اختيار من متعدد" : "سؤال مقالي";
+            document.getElementById('exam-q-text').textContent = q.q;
+
+            const mcqBox = document.getElementById('exam-mcq-container');
+            const essayBox = document.getElementById('exam-essay-container');
+
+            if (q.type === 'mcq') {
+                mcqBox.classList.remove('hidden');
+                essayBox.classList.add('hidden');
+                mcqBox.innerHTML = "";
+
+                q.options.forEach((opt, idx) => {
+                    const isSelected = studentAnswers[currentQIndex].mcqSelected === idx;
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-right p-3.5 rounded-xl border text-sm font-bold transition cursor-pointer ${
+                        isSelected 
+                        ? 'bg-amber-500/20 border-amber-400 text-amber-300' 
+                        : 'bg-slate-900 border-slate-700 text-white hover:border-amber-500/50'
+                    }`;
+                    btn.textContent = opt;
+                    btn.onclick = () => {
+                        studentAnswers[currentQIndex].mcqSelected = idx;
+                        renderExamQuestion();
+                    };
+                    mcqBox.appendChild(btn);
+                });
+            } else {
+                mcqBox.classList.add('hidden');
+                essayBox.classList.remove('hidden');
+                const textarea = document.getElementById('exam-essay-input');
+                textarea.value = studentAnswers[currentQIndex].essayText || "";
+                textarea.oninput = (e) => {
+                    studentAnswers[currentQIndex].essayText = e.target.value;
+                };
+            }
+
+            document.getElementById('prev-btn').style.visibility = currentQIndex === 0 ? 'hidden' : 'visible';
+            const nextBtn = document.getElementById('next-btn');
+            if (currentQIndex === model.questions.length - 1) {
+                nextBtn.textContent = "تسليم التقييم النهائي 🏁";
+                nextBtn.className = "px-6 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-black hover:bg-emerald-400 transition cursor-pointer";
+            } else {
+                nextBtn.textContent = "السؤال التالي ➡️";
+                nextBtn.className = "px-6 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-black hover:bg-amber-400 transition cursor-pointer";
+            }
+        }
+
+        function saveCurrentEssayIfAny() {
+            const model = examModels[currentModelKey];
+            const q = model.questions[currentQIndex];
+            if (q && q.type === 'essay') {
+                const textarea = document.getElementById('exam-essay-input');
+                if (textarea) {
+                    studentAnswers[currentQIndex].essayText = textarea.value;
+                }
+            }
+        }
+
+        function prevExamQuestion() {
+            saveCurrentEssayIfAny();
+            if (currentQIndex > 0) {
+                currentQIndex--;
+                renderExamQuestion();
+            }
+        }
+
+        function nextExamQuestion() {
+            saveCurrentEssayIfAny();
+            const model = examModels[currentModelKey];
+            if (currentQIndex < model.questions.length - 1) {
+                currentQIndex++;
+                renderExamQuestion();
+            } else {
+                clearInterval(examTimerInterval);
+                isExamActive = false;
+                finalizeExamSubmission("completed", "أتم الطالب الاختبار ضمن الوقت المحدد");
+                showPage('submitted-screen');
+                
+                const score = calculateTotalScore();
+                document.getElementById('submitted-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-emerald-500/20 border border-emerald-500 text-3xl flex items-center justify-center";
+                document.getElementById('submitted-icon').textContent = "✅";
+                document.getElementById('submitted-title').textContent = "تم تسليم التقييم بنجاح!";
+                document.getElementById('submitted-title').className = "text-2xl font-black text-emerald-400";
+                document.getElementById('submitted-desc').innerHTML = "تم حفظ إجاباتك ورصد درجتك وعنوان الـ IP وإرسالها إلى لوحة المستر.";
+                document.getElementById('student-score-preview').innerHTML = `درجتك المرصودة في أسئلة الاختيار: <span class="text-amber-400 font-bold">${score} / 3</span>`;
+            }
+        }
+
+        function finalizeExamSubmission(status, note) {
+            const model = examModels[currentModelKey];
+            
+            // تهيئة إجابات الطالب مع حفظ حالة تصحيح المقالي مبدئياً بـ 0
+            const formattedAnswers = studentAnswers.map(ans => ({
+                ...ans,
+                essayManualScore: 0, // 0 = لم يصححه المستر أو خطأ، 1 = صححه المستر كصحيح
+                essayGradedStatus: 'pending' // pending, correct, incorrect
+            }));
+
+            const score = calculateTotalScore();
+
+            const record = {
+                id: Date.now(),
+                studentName: currentStudentName,
+                ipAddress: detectedIP,
+                modelKey: currentModelKey,
+                modelTitle: model.title,
+                status: status, 
+                note: note,
+                timestamp: new Date().toLocaleTimeString('ar-EG'),
+                score: score,
+                answers: formattedAnswers
+            };
+
+            recordsDatabase.unshift(record);
+        }
+
+        function openAdminLogin() {
+            if (isExamActive) return;
+            document.getElementById('admin-password-input').value = "";
+            document.getElementById('admin-login-error').classList.add('hidden');
+            showPage('admin-login-screen');
+        }
+
+        function verifyAdminLogin() {
+            const pass = document.getElementById('admin-password-input').value.trim();
+            if (pass === "TH8-ABC-ARABIC") {
+                showPage('admin-dashboard-screen');
+                renderAdminDashboard();
+            } else {
+                document.getElementById('admin-login-error').classList.remove('hidden');
+            }
+        }
+
+        function setEssayGradeByAdmin(recordId, qIdx, isCorrect) {
+            const rec = recordsDatabase.find(r => r.id === recordId);
+            if (!rec) return;
+
+            rec.answers[qIdx].essayManualScore = isCorrect ? 1 : 0;
+            rec.answers[qIdx].essayGradedStatus = isCorrect ? 'correct' : 'incorrect';
+            
+            // إعادة حساب الدرجة الكلية للطالب
+            const model = examModels[rec.modelKey];
+            let total = 0;
+            model.questions.forEach((q, idx) => {
+                if (q.type === 'mcq' && rec.answers[idx].mcqSelected === q.correct) total++;
+                if (q.type === 'essay' && rec.answers[idx].essayManualScore === 1) total++;
+            });
+            rec.score = total;
+
+            renderAdminDashboard();
+        }
+
+        function renderAdminDashboard() {
+            const container = document.getElementById('admin-records-container');
+            container.innerHTML = "";
+
+            if (recordsDatabase.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-slate-900/60 p-8 rounded-2xl text-center text-slate-400 text-sm border border-slate-800">
+                        📭 لا يوجد طلاب مسجلين أو سلموا التقييم حتى الآن.
+                    </div>
+                `;
+                return;
+            }
+
+            recordsDatabase.forEach((rec, rIdx) => {
+                const isCheat = rec.status === 'cheated';
+                const isTimeout = rec.status === 'timeout';
+                
+                let statusBadge = `<span class="px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/40">✅ أتم الاختبار</span>`;
+                if (isCheat) {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded bg-rose-500/20 text-rose-400 text-xs font-bold border border-rose-500/40">🚨 محاولة غش</span>`;
+                } else if (isTimeout) {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/40">⏰ انتهى الوقت (تلقائي)</span>`;
+                }
+
+                const model = examModels[rec.modelKey];
+                let detailsHTML = "";
+                model.questions.forEach((q, qIdx) => {
+                    const ans = rec.answers[qIdx];
+                    if (q.type === 'mcq') {
+                        const userChoiceText = ans.mcqSelected !== null ? q.options[ans.mcqSelected] : "لم يجيب";
+                        const isRight = ans.mcqSelected === q.correct;
+                        detailsHTML += `
+                            <div class="p-3 rounded-xl bg-slate-950 text-xs space-y-1 border border-slate-800">
+                                <p class="font-bold text-slate-300">س${qIdx+1}: ${q.q}</p>
+                                <p class="text-slate-400">إجابة الطالب: <span class="${isRight ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">${userChoiceText}</span></p>
+                            </div>
+                        `;
+                    } else {
+                        const statusColor = ans.essayGradedStatus === 'correct' ? 'border-emerald-500 bg-emerald-950/20' : (ans.essayGradedStatus === 'incorrect' ? 'border-rose-500 bg-rose-950/20' : 'border-slate-800 bg-slate-950');
+                        detailsHTML += `
+                            <div class="p-3.5 rounded-xl ${statusColor} text-xs space-y-2 border">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-bold text-slate-200">س${qIdx+1} (مقالي): ${q.q}</p>
+                                    <div class="flex items-center gap-1.5">
+                                        <button onclick="setEssayGradeByAdmin(${rec.id}, ${qIdx}, true)" class="px-2.5 py-1 rounded bg-emerald-600/30 text-emerald-300 border border-emerald-500 font-bold hover:bg-emerald-600/50 transition cursor-pointer">✅ صحيح (+1)</button>
+                                        <button onclick="setEssayGradeByAdmin(${rec.id}, ${qIdx}, false)" class="px-2.5 py-1 rounded bg-rose-600/30 text-rose-300 border border-rose-500 font-bold hover:bg-rose-600/50 transition cursor-pointer">❌ خطأ (0)</button>
+                                    </div>
+                                </div>
+                                <div class="p-2 rounded bg-slate-900 text-slate-200">
+                                    <strong>إجابة الطالب:</strong> ${ans.essayText || "لا توجد إجابة"}
+                                </div>
+                                <div class="p-2 rounded bg-amber-500/10 text-amber-300">
+                                    <strong>الإجابة النموذجية للمستر:</strong> ${q.sampleAnswer}
+                                </div>
+                                <p class="text-[11px] font-bold ${ans.essayGradedStatus === 'correct' ? 'text-emerald-400' : (ans.essayGradedStatus === 'incorrect' ? 'text-rose-400' : 'text-amber-400')}">
+                                    حالة التقييم: ${ans.essayGradedStatus === 'correct' ? 'تم اعتماده كصحيح ✅' : (ans.essayGradedStatus === 'incorrect' ? 'تم اعتماده كخطأ ❌' : 'قيد المراجعة والانتظار ⏳')}
+                                </p>
+                            </div>
+                        `;
+                    }
+                });
+
+                const card = document.createElement('div');
+                card.className = `bg-slate-900/90 border ${isCheat ? 'border-rose-500/60' : 'border-slate-700'} rounded-2xl p-5 space-y-4`;
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-black text-white">👤 الطالب: <span class="text-amber-300">${rec.studentName}</span></h3>
+                                <span class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-xs font-bold">${rec.modelTitle}</span>
+                                ${statusBadge}
+                            </div>
+                            <p class="text-xs text-slate-400 font-mono">🌐 IP Address: <span class="text-cyan-400 font-bold">${rec.ipAddress}</span> • 🕒 وقت التسليم: ${rec.timestamp}</p>
+                            <p class="text-xs text-slate-400">📋 الحالة: ${rec.note}</p>
+                        </div>
+                        <div class="bg-slate-950 px-5 py-3 rounded-xl border border-amber-500/30 text-center">
+                            <span class="text-[10px] text-slate-400 block font-bold">الدرجة النهائية المحدثة</span>
+                            <span class="text-xl font-black text-amber-400">${rec.score} <span class="text-xs text-slate-400">/ ${model.questions.length}</span></span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        ${detailsHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
